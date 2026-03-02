@@ -1,26 +1,59 @@
-def call_lm(user_input: str ) -> dict:
-    """
-    Simulates LLM decision making.
-    Return structured JSON-like response.
-    """
-
+def call_llm(user_input: str) -> dict:
     user_input = user_input.lower()
 
-    if "blocking" in user_input:
-        return{
-            "action": "checking_blocking",
-            "reason":"User wants blocking analysis",
-            "confidence":0.92
+    if "blocking report" in user_input:
+        return {
+            "actions": [
+                {
+                    "action": "check_blocking",
+                    "parameters": {
+                        "database_name": "SalesDB",
+                        "time_window_hours": 2
+                    },
+                    "execution_policy": {
+                        "on_failure": "stop"
+                    }
+                },
+                {
+                    "action": "generate_report",
+                    "parameters": {
+                        "format": "pdf"
+                    },
+                    "execution_policy": {
+                        "on_failure": "stop"
+                    }
+                }
+            ],
+            "confidence": 0.91
         }
-    elif "wait" in user_input:
-        return{
-            "action": "analyze_waits",
-            "reason":"User wants wait stats analysis",
-            "confidence":0.87
+
+    elif "blocking" in user_input:
+        return {
+            "actions": [
+                {
+                    "action": "check_blocking",
+                    "parameters": {
+                        "database_name": "SalesDB",
+                        "time_window_hours": 2
+                    },
+                    "execution_policy": {
+                        "on_failure": "stop"
+                    }
+                }
+            ],
+            "confidence": 0.92
         }
+
     else:
-        return{
-            "action": "general_response",
-            "reason":"No specific database keyword detected",
-            "confidence":0.60
+        return {
+            "actions": [
+                {
+                    "action": "general_response",
+                    "parameters": {},
+                    "execution_policy": {
+                        "on_failure": "continue"
+                    }
+                }
+            ],
+            "confidence": 0.60
         }
