@@ -1,5 +1,6 @@
 from mock_llm import call_llm
 from tools import check_blocking, generate_report, general_response
+from memory import AgentMemory
 
 
 def execute_action(step):
@@ -20,8 +21,9 @@ def execute_action(step):
 
 
 def run_agent(user_input: str):
+    memory = AgentMemory()
     decision = call_llm(user_input)
-
+    
     print("\n--- Agent Plan ---")
     print(decision)
 
@@ -31,6 +33,7 @@ def run_agent(user_input: str):
 
         try:
             result = execute_action(step)
+            memory.store(step["action"],result)
             print("Result:", result)
 
         except Exception as e:
@@ -43,6 +46,8 @@ def run_agent(user_input: str):
                 print("Continuing despite failure.")
                 continue
 
+    print("\n--- Final Memory State----")
+    print(memory.get_all())
 
 if __name__ == "__main__":
     user_query = input("Enter your database request: ")
